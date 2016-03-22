@@ -4,8 +4,9 @@
     "description": "JavaScript dependency injection system.",
     "main": "lib/dizzy.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "umd": "grep -rl '// fid-umd' lib/ --include \\*.js | xargs fid-umd"
+        "test": "jasmine-node lib spec",
+        "umd": "grep -rl '// fid-umd' lib/ --include \\*.js | xargs fid-umd",
+        "watch": "npm run test -- --autotest"
     },
     "repository": {
         "type": "git",
@@ -26,6 +27,7 @@
     },
     "homepage": "https://github.com/tests-always-included/dizzy#readme",
     "devDependencies": {
-        "fid-umd": "^2.0.4"
+        "fid-umd": "^2.0.4",
+        "jasmine-node": "^1.14.5"
     }
 }
