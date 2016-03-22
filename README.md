@@ -13,6 +13,7 @@ This system was based around the following goals:
 2. The framework should not need to modify external libraries in order to easily get them added to the dependency tree.
 3. Follow industry standard naming conventions and community embraced patterns.
 4. Do not hijack `require()`, even though it is tempting.
+5. ECMAScript 6.  This impacts both what can be accepted and how the code runs.
 
 
 Examples
@@ -56,9 +57,11 @@ Methods
 -------
 
 
-### `dizzy.call([argsArray], callbackFn)`
+### `dizzy.call([argsArray], callbackFn, [contextObj])`
 
 Call the callback function with arguments from the dependency injection system.  When using the `argsArray`, the function will be called with registered values and their names will be in `argsArray`.  When calling a function only, the function's parameters must match the name of the value to provide.
+
+When `contextObj` is specified, this uses the designated context when calling the callback.
 
     dizzy.provide('one', 1);
 
@@ -69,15 +72,17 @@ Call the callback function with arguments from the dependency injection system. 
         console.log(someVariable);  // 1
     });
 
-    // Without the argsArray
+    // Without the argsArray but with a context specifically set to null
     dizzy.call(function (one) {
         console.log(one); // 1
-    });
+    }, null);
 
 
 ### `dizzy.instance(key, [argsArray], classFn)`
 
 Sets up a class so an instance will be to be provided.  Shortcut method for using `dizzy.register()`.  This will create a new instance to everything that depends on it.  See `dizzy.singleton()` when you prefer to have the same instance supplied to every component in the system.
+
+Returns `this`.
 
     // Inject the argument without an argsArray
     function Alphabet(letters) {
@@ -166,7 +171,7 @@ Returns an array of all registered values.
 
 ### `dizzy.provide(key, value)`
 
-Sets a given value for a key.  No dependencies will be injected.
+Sets a given value for a key.  No dependencies will be injected.  Returns `this`.
 
     dizzy.provide('port', 8000);
     dizzy.provide('add', function (a, b) {
@@ -189,6 +194,8 @@ Sets up a function as a factory.  This will automatically inject dependencies in
 When `argsArray` is omitted, the function's arguments are used instead.  The variable names will be the keys sought by the dependency injection system.
 
 When `contextObj` is included, the function will be called with the given context.
+
+Returns `this`.
 
     // Set up a value to inject
     dizzy.provide('name', 'John Doe');
@@ -215,7 +222,7 @@ When `contextObj` is included, the function will be called with the given contex
 
 ### `dizzy.resolve(key)`
 
-Instantiates an object, returns a provided value or executes a factory.  This injects all dependencies as well.
+Instantiates an object, returns a provided value or executes a factory.  This injects all dependencies as well.  Returns the result.
 
     dizzy = require('dizzy').container();
     dizzy.provide('Math', Math);
@@ -226,6 +233,8 @@ Instantiates an object, returns a provided value or executes a factory.  This in
 ### `dizzy.singleton(key, [argsArray], classFn)`
 
 Sets up a class so an instance will be to be provided.  Shortcut method for using `dizzy.register()`.  This will return a single instance for all resolutions; it won't become a new instance.  If you prefer to have a new instance generated, check out `dizzy.instance()`.
+
+Returns `this`.
 
     // Illustrate instantiation without an argsArray and
     // behavior of the singleton method.
@@ -283,7 +292,7 @@ Currently there are no events, though they are under consideration.  Proposed ev
 
 The methods on the container should allow one to register a hash or a map of key/value pairs.
 
-Clearing the cache or clearing all registered values may make testing easier.
+Having a cache may make things faster.  Clearing the cache or clearing all registered values may make testing easier.
 
 Allowing for overrides in `dizzy.resolve()` and `dizzy.call()` would make testing easier.
 
