@@ -1,0 +1,31 @@
+{
+    "name": "dizzy",
+    "version": "1.0.0",
+    "description": "JavaScript dependency injection system.",
+    "main": "lib/dizzy.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "umd": "grep -rl '// fid-umd' lib/ --include \\*.js | xargs fid-umd"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/tests-always-included/dizzy.git"
+    },
+    "keywords": [
+        "di",
+        "dependency",
+        "injection",
+        "container",
+        "dependencies",
+        "injector"
+    ],
+    "author": "Tyler Akins",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/tests-always-included/dizzy/issues"
+    },
+    "homepage": "https://github.com/tests-always-included/dizzy#readme",
+    "devDependencies": {
+        "fid-umd": "^2.0.4"
+    }
+}
