@@ -80,7 +80,7 @@ When `contextObj` is specified, this uses the designated context when calling th
 
 ### `dizzy.instance(key, [argsArray], classFn)`
 
-Sets up a class so an instance will be to be provided.  Shortcut method for using `dizzy.register()`.  This will create a new instance to everything that depends on it.  See `dizzy.singleton()` when you prefer to have the same instance supplied to every component in the system.
+Sets up a class so an instance will be to be provided.  Shortcut method for using `dizzy.register()`.  This will create a new instance every time.  See `dizzy.singleton()` when you prefer to have the same instance supplied to every component in the system.
 
 Returns `this`.
 
