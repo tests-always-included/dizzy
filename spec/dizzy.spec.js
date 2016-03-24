@@ -32,7 +32,7 @@ describe("Dizzy's exports", () => {
     it("has .container()", () => {
         expect(typeof dizzy.container).toBe("function");
     });
-    describe("determineArgs", () => {
+    describe("determineArgs()", () => {
         it("is a function", () => {
             expect(typeof dizzy.determineArgs).toBe("function");
         });
@@ -107,6 +107,9 @@ describe("Dizzy's exports", () => {
             });
             it("parses condensed arrow functions with no parenthesis and no parameters", () => {
                 expect(dizzy.determineArgs(mockFunctionString("_=>{"))).toEqual([]);
+            });
+            it("handles ES6 classes without a constructor", () => {
+                expect(dizzy.determineArgs(mockFunctionString("class Test {\n    methodName(wrong) {\n        return wrong;\n    }\n}"))).toEqual([]);
             });
         });
     });
