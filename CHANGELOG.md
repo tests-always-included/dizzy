@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+1.0.2 - 2016-03-28
+------------------
+
+* Merged pull request #2 - remove use of spread operator to support older versions of Node.
+
+
 1.0.1 - 2016-03-24
 ------------------
 
