@@ -178,7 +178,7 @@ By default, the provider is configured thus:
 * `.withContext(null)` - The context for factory functions is assigned to `null` as a reasonable defaults.
 
 
-### `.asFactory()`
+### `.asFactory([args...])`
 
 Treat the retrieved value as a factory function.  This example illustrates the difference between a factory and a regular value.
 
@@ -203,6 +203,19 @@ Treat the retrieved value as a factory function.  This example illustrates the d
     // factory was executed.
     console.log(factory === 2); // true
 
+You can also pass arguments to `asFactory()` and those arguments will be looked up in the container instead of the normal resolution.
+
+    // Example illustrating overriding arguments
+    dizzy.register("input", "normal input");
+    dizzy.register("alt", "alternate input");
+    function reflect(input) {
+        return input;
+    }
+    dizzy.register("normal", reflect).asFactory();
+    console.log(dizzy.resolve("normal")); // "normal input"
+    dizzy.register("overridden", reflect).asFactory(alt);
+    console.log(dizzy.resolve("overridden")); // "alternate input"
+
 
 ### `.asInstance()`
 
@@ -225,6 +238,21 @@ Treat the retrieved value as a class function and return an instance of the clas
     dizzy.register("testClassInstance", TestClass).asInstance();
     result = dizzy.resolve("testClassInstance");
     console.log(result instanceof TestClass);  // true
+
+You can also pass arguments to `asInstance()` and those arguments will be looked up in the container instead of the normal resolution and passed to the constructor.
+
+    class TestClass {
+        constructor(thing) {
+            console.log("thing is", thing);
+        }
+    }
+
+    dizzy.register("thing", "normal thing");
+    dizzy.register("alt", "alternate thing");
+    dizzy.register("normal", TestClass).asInstance();
+    dizzy.resolve("normal");  // thing is normal thing
+    dizzy.register("overridden", TestClass).asInstance(alt);
+    dizzy.resolve("overridden");  // thing is alternate thing
 
 
 ### `.asValue()`
@@ -287,7 +315,7 @@ Retrieved the value from the container using the registered value as the key.  I
     dizzy.register("TestClass", TestClass);
 
     // Now register something that makes instances of that class
-    dizzy.register("testClassInstance", "TestClass").fromContainer().instance();
+    dizzy.register("testClassInstance", "TestClass").fromContainer().asInstance();
 
     instance = dizzy.resolve("testClassInstance");
     classFn = dizzy.resolve("TestClass");
