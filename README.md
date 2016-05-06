@@ -322,7 +322,7 @@ Retrieved the value from the container using the registered value as the key.  I
     console.log(instance instanceof classFn); // true
 
 
-### `.fromModule()`
+### `.fromModule([baseDir])`
 
 Retrieves the true value from node using `require()`.  You supply a module name.  Make sure it is installed via npm before you start requiring it, otherwise it just won't work.
 
@@ -331,6 +331,21 @@ Retrieves the true value from node using `require()`.  You supply a module name.
 
     // Resolve the data - this calls require()
     glob = dizzy.resolve("glob");
+
+You also may require relative paths if you indicate the location of the file setting up the container.
+
+    // This writes out the current working directory, which can change.
+    // For our example, let us use /home/username
+    console.log(process.cwd());  // /home/username
+    console.log(__dirname);  // /home/username/project/lib/
+
+    // Registers a module with a relative path.
+    // Result:  /home/username/config.json
+    dizzy.register("config1", "./config.json").fromModule();
+
+    // Registers a module with a relative path against the file's location
+    // Result:  /home/username/project/lib/config.json
+    dizzy.register("config2", "./config.json").fromModule(__dirname);
 
 
 ### `.fromValue()`

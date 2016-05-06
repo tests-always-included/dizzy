@@ -1,7 +1,7 @@
 "use strict";
 
 describe("DizzyProvider", () => {
-    var containerMock, DizzyProvider, functionResult, functionTest, provider;
+    var containerMock, DizzyProvider, functionResult, functionTest, provider, requireMock;
 
     beforeEach(() => {
         containerMock = jasmine.createSpyObj("container", [
@@ -19,7 +19,8 @@ describe("DizzyProvider", () => {
 
             return functionResult;
         };
-        DizzyProvider = require("../lib/dizzy-provider")();
+        requireMock = jasmine.createSpy("requireMock");
+        DizzyProvider = require("../lib/dizzy-provider")(require("path"), requireMock);
         provider = new DizzyProvider(functionTest, containerMock);
     });
     it("instantiates", () => {
@@ -111,12 +112,29 @@ describe("DizzyProvider", () => {
         });
     });
     describe("fromModule()", () => {
-        it("uses require()", () => {
+        function setup(val) {
             // Need to make our own provider here in order to get
             // a Node module name
-            provider = new DizzyProvider("fs", containerMock);
+            requireMock.andCallFake((what) => {
+                return "Module: " + what;
+            });
+            provider = new DizzyProvider(val, containerMock);
+        }
+
+        it("uses require()", () => {
+            setup("fs");
             provider.fromModule();
-            expect(provider.provide()).toBe(require("fs"));
+            expect(provider.provide()).toBe("Module: fs");
+        });
+        it("uses process.cwd() for relative modules", () => {
+            setup("./config.js");
+            provider.fromModule();
+            expect(provider.provide()).toBe("Module: " + process.cwd() + "/config.js");
+        });
+        it("uses a specified folder for relative modules", () => {
+            setup("./config.js");
+            provider.fromModule("/var/lib/modules");
+            expect(provider.provide()).toBe("Module: /var/lib/modules/config.js");
         });
     });
     describe("fromValue()", () => {

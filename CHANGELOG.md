@@ -1,7 +1,13 @@
 CHANGELOG
 =========
 
-2.0.0 - 2016-05-05
+2.0.1 - 2016-05-06
+------------------
+
+* Allow `.fromModule()` to be passes a path and handle relative paths in a defined way.
+
+
+2.0.0 - 2016-05-06
 ------------------
 
 * New fluent interface, allowing for greater freedom in expressing the source of the value, how to treat the value, and extra options one can apply.
