@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2.0.0 - 2016-05-05
+------------------
+
+* New fluent interface, allowing for greater freedom in expressing the source of the value, how to treat the value, and extra options one can apply.
+
+
 1.0.3 - 2016-04-25
 ------------------
 
