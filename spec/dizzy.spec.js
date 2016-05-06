@@ -6,11 +6,14 @@ class es6Class {
     deconstructor(wrong) {
         return wrong;
     }
-    constructor(right) {
-        return right;
+    constructor(right, correct) {
+        return right + correct;
     }
     reconstructor(incorrect) {
         return incorrect;
+    }
+    subconstructor(wrong, bad) {
+        return wrong + bad;
     }
 }
 
@@ -70,15 +73,25 @@ describe("Dizzy's exports", () => {
             });
             it("works with new classes", () => {
                 expect(dizzy.determineArgs(es6Class)).toEqual([
-                    "right"
+                    "right",
+                    "correct"
                 ]);
             });
-            it("works with new class methods", () => {
+            it("works with new class methods that have a single argument", () => {
                 var x;
 
                 x = new es6Class();
                 expect(dizzy.determineArgs(x.reconstructor)).toEqual([
                     "incorrect"
+                ]);
+            });
+            it("works with new class methods that have multiple arguments", () => {
+                var x;
+
+                x = new es6Class();
+                expect(dizzy.determineArgs(x.subconstructor)).toEqual([
+                    "wrong",
+                    "bad"
                 ]);
             });
         });
@@ -110,6 +123,11 @@ describe("Dizzy's exports", () => {
             });
             it("handles ES6 classes without a constructor", () => {
                 expect(dizzy.determineArgs(mockFunctionString("class Test {\n    methodName(wrong) {\n        return wrong;\n    }\n}"))).toEqual([]);
+            });
+            it("understands objects with mixed functions", () => {
+                expect(dizzy.determineArgs(mockFunctionString("(config) => {\n    return { x: function (thing) { return [config,thing];}};\n}"))).toEqual([
+                    "config"
+                ]);
             });
         });
     });

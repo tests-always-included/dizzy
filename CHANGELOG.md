@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+1.0.3 - 2016-04-25
+------------------
+
+* Addressed a problem where the argument matcher would continue well beyond the argument list.  Added a test and updated others.
+
+
 1.0.2 - 2016-03-28
 ------------------
 
