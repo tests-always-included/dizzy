@@ -25,101 +25,138 @@ In order to use this library, first you must install it.
 
 Next, you write some code to create the container.  You can add a few things to the container and then start injecting!
 
-    // dizzy = container, Dizzy = class
-    var dizzy, Dizzy;
-
-    // Load the module
-    Dizzy = require("dizzy");
-
-    // Create the container
-    dizzy = new Dizzy();
+    var dizzy = require('dizzy').container();
 
     // Let's make "Hello world!" for Express.js
-    dizzy.register("port", 8000);  // Static value
-    dizzy.register("express", "express").fromModule();  // Node module
-    dizzy.register("app", function (express, addRoutes, port) {
+    dizzy.provide('port', 8000);
+    dizzy.provide('express', require('express'));
+    dizzy.register('app', function (express, addRoutes, port) {
         var app;
 
         app = express();
         addRoutes(app);
         app.listen(port, function () {
-            console.log("app listening on port", port);
+            console.log('app listening on port', port);
         });
 
         return app;
-    }).asFactory();  // New instance every time it is injected
-    dizzy.register("addRoutes", function (app) {
+    });
+    dizzy.provide('addRoutes', function (app) {
         // Note, this is not an ideal way to add routes.
         // This example is for illustrative purposes only.
-        // A better idea is restify-router-magic.
-        app.get("/", function (req, res) {
-            res.send("Hello world!");
+        app.get('/', function (req, res) {
+            res.send('Hello world!');
         });
-    });  // Provides this function
+    });
 
-    // Nothing has been made yet.  Start the app.  This will inject
-    // "port", "express" and "addRoutes" into the call to the "app"
-    // factory.
-    dizzy.resolve("app");
+    // Nothing has been made yet.  Start the app.
+    dizzy.resolve('app');
 
 
 Methods
 -------
 
 
-### `dizzy.call(callFunction, [argsArray], [contextObj])`
+### `dizzy.call([argsArray], callbackFn, [contextObj])`
 
-Call `callFunction` with arguments from the dependency injection system.  When using the `argsArray`, the function will be called with registered values and their names will be in `argsArray`.  When calling a function only, the function's parameters must match the name of the value to provide.
+Call the callback function with arguments from the dependency injection system.  When using the `argsArray`, the function will be called with registered values and their names will be in `argsArray`.  When calling a function only, the function's parameters must match the name of the value to provide.
 
 When `contextObj` is specified, this uses the designated context when calling the callback.
 
-Returns the value returned from the function.
+    dizzy.provide('one', 1);
 
-    dizzy.register("one", 1);
-
-    // Uses argsArray to map the dependency injection "one" to the
-    // parameter "someVariable".
-    dizzy.call(function (someVariable) {
+    // With the argsArray
+    dizzy.call([
+        'one'
+    ], function (someVariable) {
         console.log(someVariable);  // 1
-    }, [
-        "one"
-    ]);
+    });
 
-    // Dizzy will inject "one" to the function automatically when you
-    // do not use an argsArray.  This example also sets the context to null.
+    // Without the argsArray but with a context specifically set to null
     dizzy.call(function (one) {
         console.log(one); // 1
     }, null);
 
 
-### `dizzy.instance(classFunction, [argsArray])`
+### `dizzy.instance(key, [argsArray], classFn)`
 
-Creates an instance of `classFunction`.  When `argsArray` is passed, it will inject into the constructor all of the values specified.  If `argsArray` is omitted, Dizzy will look up the parameters that the constructor needs.
+Sets up a class so an instance will be to be provided.  Shortcut method for using `dizzy.register()`.  This will create a new instance every time.  See `dizzy.singleton()` when you prefer to have the same instance supplied to every component in the system.
 
-Returns the newly created instance.
+Returns `this`.
 
-    class Testing {
-        constructor(val) {
-            console.log(val);
+    // Inject the argument without an argsArray
+    function Alphabet(letters) {
+        this.letters = letters;
+    }
+
+    dizzy.provide('letters', 'abcdefghijklmnopqrstuvwxyz');
+    dizzy.instance('english alphabet', Alphabet);
+    alpha = dizzy.resolve('english alphabet);
+    console.log(alpha.letters); // abcdefghijklmnopqrstuvwxyz
+
+    // Inject arguments with an argsArray
+    function Coordinates(x, y) {
+        this.x = x;
+        this.y = y;
+
+        this.distanceFromOrigin = function () {
+            return Math.sqrt(this.x * this.x + this.y * this.y);
+        };
+    }
+
+    dizzy.instance('coords', [
+        'locationX',
+        'locationY'
+    ], Coordinates);
+    dizzy.provide('locationX', 4);
+    dizzy.provide('locationY', 3);
+    c = dizzy.resolve('coords');
+    console.log(c.distanceFromOrigin()); // 5
+
+    // Difference between dizzy.singleton() and dizzy.instance().
+    function Cow() {
+        this.speak = function () {
+            console.log("Moo!");
         }
     }
 
-    dizzy.register("val", "ONE");
-    dizzy.register("two", "TWO");
-    dizzy.instance(Testing);  // Injects "val" automatically, writes "ONE".
-    dizzy.instance(Testing, [
-        "two"
-    ]);  // Injects "two" using argsArray, writes "TWO" to console.
+    dizzy.instance('cow-instance', Cow);
+    dizzy.singleton('cow-singleton', Cow);
+
+    cow1 = dizzy.resolve('cow-instance');
+    cow2 = dizzy.resolve('cow-instance');
+
+    if (cow1 === cow2) {
+        throw new Error('These will always be different')
+    }
+
+    cow1 = dizzy.resolve('cow-singleton', Cow);
+    cow2 = dizzy.resolve('cow-singleton', Cow);
+
+    if (cow1 !== cow2) {
+        throw new Error('These will always be the same')
+    }
+
+This method is simply a helper shortcut to using `dizzy.register()`, and the code looks a lot like this:
+
+    dizzy.instance = function (key, argsArray, classFn) {
+        /* Detect the arguments array and make adjustments as needed.
+         * That has been omitted from this example for brevity and clarity.
+         */
+        this.register(key, argsArray, function () {
+            return new classFn();
+        });
+    };
 
 
 ### `dizzy.isRegistered(key)`
 
 Returns a boolean indicating if the key is registered or not.
 
-    dizzy.register("day type", "sunny");
+    dizzy.provide('day type', 'sunny');
 
-    if (! dizzy.isRegistered("day type")) {
-        throw new Error("The type of day was registered")
+    if (! dizzy.isRegistered('day type')) {
+        throw new Error('The type of day was registered')
     }
 
 
@@ -127,242 +164,121 @@ Returns a boolean indicating if the key is registered or not.
 
 Returns an array of all registered values.
 
-    dizzy.register("testing", true);
+    dizzy.provide('testing', true);
     list = dizzy.list();
-    console.log(list);  // [ "testing" ]
+    console.log(list);  // [ 'testing' ]
 
 
-### `dizzy.register(key, value)`
+### `dizzy.provide(key, value)`
 
-Sets a given value for a key.  No dependencies will be injected.  Returns `this`.  Keys can be anything - internally a Map is used.  Values can be anything.
+Sets a given value for a key.  No dependencies will be injected.  Returns `this`.
 
-Returns an instance of `DizzyProvider`, which allows you define how the value is retrieved, how it is handled, and additional options.
-
-    // Register a normal value
-    dizzy.register("port", 8000);
-
-    // Register a function
-    dizzy.register("add", function (a, b) {
+    dizzy.provide('port', 8000);
+    dizzy.provide('add', function (a, b) {
         return a + b;
     });
 
-    // Register a class that will have dependencies injected
-    class TestClass {}
-    dizzy.register("testClassInstance", TestClass).asInstance();
+This acts as a shortcut for calling `dizzy.register()`.
 
-    // Register a factory that will have dependencies injected.  We want
-    // the same value returned, so this one is also cached.
-    dizzy.register("logger", function (console) {
-        return console.log.bind(console);
-    }).asFactory().cached();
-
-For additional information, look at the `DizzyProvider` section.
-
-
-`DizzyProvider`
----------------
-
-This is responsible for supplying values when they are to be resolved by Dizzy or when they are needed for injection into a factory or instance.
-
-There are three phases:
-
-* Retrieval of the value using a `from*` function.
-* Changing the value using an `as*` function.
-* Handling additional options.
-
-By default, the provider is configured thus:
-
-* `.fromValue()` - The value registered is not looked up elsewhere.
-* `.asValue()` - The value retrieved is unaltered.
-* `.cached(false)` - The retrieved value is not cached.
-* `.withContext(null)` - The context for factory functions is assigned to `null` as a reasonable defaults.
-
-
-### `.asFactory([args...])`
-
-Treat the retrieved value as a factory function.  This example illustrates the difference between a factory and a regular value.
-
-    // Just setup
-    dizzy.register("val", "some value");
-
-    // Example:  Not a factory
-    dizzy.register("notFactory", function (val) {
-        console.log(val);
-        return 1;
-    });
-    notFactory = dizzy.resolve("notFactory");
-    console.log(notFactory instanceof Function); // true
-
-    // Example:  Factory function that gets called
-    dizzy.register("factory", function (val) {
-        console.log(val);
-        return 2;
-    }).asFactory();
-    factory = dizzy.resolve("factory");
-    // The above logged "some value" because it was injected and the
-    // factory was executed.
-    console.log(factory === 2); // true
-
-You can also pass arguments to `asFactory()` and those arguments will be looked up in the container instead of the normal resolution.
-
-    // Example illustrating overriding arguments
-    dizzy.register("input", "normal input");
-    dizzy.register("alt", "alternate input");
-    function reflect(input) {
-        return input;
-    }
-    dizzy.register("normal", reflect).asFactory();
-    console.log(dizzy.resolve("normal")); // "normal input"
-    dizzy.register("overridden", reflect).asFactory(alt);
-    console.log(dizzy.resolve("overridden")); // "alternate input"
-
-
-### `.asInstance()`
-
-Treat the retrieved value as a class function and return an instance of the class function.  The constructor is called and all dependencies are injected.
-
-    // Here's a value and a class
-    dizzy.register("count", 20")
-    class TestClass {
-        constructor(count) {
-            this.count = count;
-        }
-    }
-
-    // Example:  Register the class - do not make an instance
-    dizzy.register("TestClass", TestClass);
-    result = dizzy.resolve("TestClass");
-    console.log(result === TestClass);  // true
-
-    // Example:  Register the class and make it return an instance
-    dizzy.register("testClassInstance", TestClass).asInstance();
-    result = dizzy.resolve("testClassInstance");
-    console.log(result instanceof TestClass);  // true
-
-You can also pass arguments to `asInstance()` and those arguments will be looked up in the container instead of the normal resolution and passed to the constructor.
-
-    class TestClass {
-        constructor(thing) {
-            console.log("thing is", thing);
-        }
-    }
-
-    dizzy.register("thing", "normal thing");
-    dizzy.register("alt", "alternate thing");
-    dizzy.register("normal", TestClass).asInstance();
-    dizzy.resolve("normal");  // thing is normal thing
-    dizzy.register("overridden", TestClass).asInstance(alt);
-    dizzy.resolve("overridden");  // thing is alternate thing
-
-
-### `.asValue()`
-
-Returns the retrieved value without any alteration.  This is the default behavior.  The function is provided for completeness.
-
-    // Using it as a default
-    dizzy.register("one", 1);
-
-    // I don't know why, but you could do this.
-    // The last as* function overrides the others.
-    dizzy.register("two", 2).asInstance().asFactory().asValue();
-
-
-### `.cached()`
-
-Cache the result.  This remembers the value that was provided before and ensures that the exact same value is supplied everywhere.
-
-    // You may prevent factories from running multiple times
-    var count = 0;
-    function factory() {
-        count += 1;
-        return count;
-    }
-
-    // Uncached factory
-    dizzy.register("factoryUncached", factory).asFactory();
-    console.log(dizzy.resolve("factoryUncached"));  // 1
-    console.log(dizzy.resolve("factoryUncached"));  // 2
-
-    // Cached factory
-    dizzy.register("factoryCached", factory).asFactory().cached();
-    console.log(dizzy.resolve("factoryCached"));  // 3
-    console.log(dizzy.resolve("factoryCached"));  // 3
-
-    // You may supply individual instances or the same instance
-    class TestClass {}
-
-    // Uncached instance
-    dizzy.register("classUncached", TestClass).asInstance();
-    uncached1 = dizzy.resolve("classUncached");
-    uncached2 = dizzy.resolve("classUncached");
-    console.log(uncached1 === uncached2); // false
-
-    // Cached instance
-    dizzy.register("classCached", TestClass).asInstance().cached()
-    cached1 = dizzy.resolve("classCached");
-    cached2 = dizzy.resolve("classCached");
-    console.log(cached1 === cached2); // true
-
-
-### `.fromContainer()`
-
-Retrieved the value from the container using the registered value as the key.  It's a bit odd to do this, but this mechanism lets you register a class and then register instances of that class.
-
-    // Make a class
-    class TestClass {}
-
-    // Register the class
-    dizzy.register("TestClass", TestClass);
-
-    // Now register something that makes instances of that class
-    dizzy.register("testClassInstance", "TestClass").fromContainer().asInstance();
-
-    instance = dizzy.resolve("testClassInstance");
-    classFn = dizzy.resolve("TestClass");
-    console.log(instance instanceof classFn); // true
-
-
-### `.fromModule()`
-
-Retrieves the true value from node using `require()`.  You supply a module name.  Make sure it is installed via npm before you start requiring it, otherwise it just won't work.
-
-    // Register a module - this does not use require() yet
-    dizzy.register("glob", "glob").fromModule();
-
-    // Resolve the data - this calls require()
-    glob = dizzy.resolve("glob");
-
-
-### `.fromValue()`
-
-Retrieves the value directly from the container without doing any lookups.  This is the default behavior.  The function is provided for completeness.
-
-    // Using it as a default
-    dizzy.register("one", 1);
-
-    // I don't know why, but you could do this.
-    // The last from* function overrides the others.
-    dizzy.register("two", 2).fromContainer().fromModule().fromValue()
-
-
-### `.withContext()`
-
-Allows you to specify a context for a factory function.
-
-    contextObj = {
-        something: "test"
+    dizzy.provide = function (key, value) {
+        this.register(key, [], function () {
+            return value;
+        });
     };
-    function factoryFn() {
-        console.log(this.something);
+
+
+### `dizzy.register(key, [argsArray], factoryFn, [contextObj])`
+
+Sets up a function as a factory.  This will automatically inject dependencies into the factory function.
+
+When `argsArray` is omitted, the function's arguments are used instead.  The variable names will be the keys sought by the dependency injection system.
+
+When `contextObj` is included, the function will be called with the given context.
+
+Returns `this`.
+
+    // Set up a value to inject
+    dizzy.provide('name', 'John Doe');
+
+    // Call register without an argument list.
+    dizzy.register('person1', function (name) {
+        return name;
+    });
+    result = dizzy.resolve('person1');
+    console.log(result);  // "John Doe"
+
+    // Same as above, but here we are explicitly citing the arguments to
+    // inject
+    dizzy.register('person2', [
+        'name'
+    ], function (x, y) {
+        // y will be undefined because it was not specified in the
+        // array of arguments.
+        return x;
+    });
+    result = dizzy.resolve('person2');
+    console.log(result);  // "John Doe"
+
+
+### `dizzy.resolve(key)`
+
+Instantiates an object, returns a provided value or executes a factory.  This injects all dependencies as well.  Returns the result.
+
+    dizzy = require('dizzy').container();
+    dizzy.provide('Math', Math);
+    object = dizzy.resolve('Math');
+    console.log(typeof object.log); // function
+
+
+### `dizzy.singleton(key, [argsArray], classFn)`
+
+Sets up a class so an instance will be to be provided.  Shortcut method for using `dizzy.register()`.  This will return a single instance for all resolutions; it won't become a new instance.  If you prefer to have a new instance generated, check out `dizzy.instance()`.
+
+Returns `this`.
+
+    // Illustrate instantiation without an argsArray and
+    // behavior of the singleton method.
+    function Animal(name) {
+        this.name = name;
     }
 
-    // Using the default, null context
-    dizzy.register("factoryNullContext", factoryFn).asFactory();
-    dizzy.resolve("factoryNullContext");  // logs "undefined"
+    dizzy.singleton('animal', Animal);
+    dizzy.provide('name', 'Spot');
+    animal1 = dizzy.resolve('animal');
+    console.log(animal1.name);  // Spot
 
-    // Using the specified context
-    dizzy.register("factoryWithContext", factoryFn).asFactory().withContext(contextObj);
-    dizzy.resolve("factoryWithContext");  // logs "test"
+    // Notice how we change the name, but since "animal" is a singleton,
+    // this didn't update the object.
+    dizzy.provide('name', 'Rover');
+    animal2 = dizzy.resolve('animal');
+    console.log(animal1.name);  // Spot
+
+    if (animal1 !== animal2) {
+        throw new Error("These will always be identical instances")
+    }
+
+    // Redefine the animal singleton, this time using the argsArray.
+    dizzy.singleton('animal-with-args-array', [
+        'name'
+    ], Animal);
+
+Internally, the implementation of `dizzy.singleton()` is similar to this:
+
+    dizzy.singleton = function (key, argsArray, classFn) {
+        var instance;
+
+        /* There's some magic here to make sure the arguments are right
+         * and to detect the argument array if not specified.  It's not
+         * included in this example.
+         */
+        this.register(key, argsArray, function () {
+            if (! instance) {
+                instance = new classFn();
+            }
+
+            return instance;
+        });
+    };
 
 
 Future Work
@@ -378,7 +294,7 @@ The methods on the container should allow one to register a hash or a map of key
 
 Having a cache may make things faster.  Clearing the cache or clearing all registered values may make testing easier.
 
-Allowing for overrides in `dizzy.resolve()` and `dizzy.call()` could make testing easier.
+Allowing for overrides in `dizzy.resolve()` and `dizzy.call()` would make testing easier.
 
 Loading all files automatically would cut down on the amount of code.  Investigate [dependable.load()](https://github.com/Bruce17/dependable).
 

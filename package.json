@@ -1,8 +1,8 @@
 {
     "name": "dizzy",
-    "version": "2.0.0",
+    "version": "1.0.2",
     "description": "JavaScript dependency injection system.",
-    "main": "lib/index.js",
+    "main": "lib/dizzy.js",
     "scripts": {
         "test": "jasmine-node lib spec",
         "umd": "grep -rl '// fid-umd' lib/ --include \\*.js | xargs fid-umd",
