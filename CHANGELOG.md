@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2.0.2 - 2016-05-27
+------------------
+
+* Throws an error with the key name when there is a problem resolving something.
+
+
 2.0.1 - 2016-05-06
 ------------------
 
