@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2.0.3 - 2016-05-27
+------------------
+
+* The provider class now does type checking before instantiating a class and running functions, catching the errors closer to the problem, allowing for more accurate error messages.
+
+
 2.0.2 - 2016-05-27
 ------------------
 
