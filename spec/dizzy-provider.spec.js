@@ -21,7 +21,7 @@ describe("DizzyProvider", () => {
         };
         requireMock = jasmine.createSpy("requireMock");
         DizzyProvider = require("../lib/dizzy-provider")(require("path"), requireMock);
-        provider = new DizzyProvider(functionTest, containerMock);
+        provider = new DizzyProvider("testKey", functionTest, containerMock);
     });
     it("instantiates", () => {
         expect(typeof provider).toBe("object");
@@ -41,6 +41,13 @@ describe("DizzyProvider", () => {
                 "test"
             ], null);
         });
+        it("throws an error when the resolved value is not a function", () => {
+            provider = new DizzyProvider("testKey", "a string", containerMock);
+            provider.asFactory();
+            expect(() => {
+                provider.provide();
+            }).toThrow();
+        });
     });
     describe("asInstance()", () => {
         it("creates an instance", () => {
@@ -56,6 +63,13 @@ describe("DizzyProvider", () => {
             expect(containerMock.instance).toHaveBeenCalledWith(functionTest, [
                 "abcd"
             ]);
+        });
+        it("throws an error when the resolved value is not a function", () => {
+            provider = new DizzyProvider("testKey", "a string", containerMock);
+            provider.asFactory();
+            expect(() => {
+                provider.provide();
+            }).toThrow();
         });
     });
     describe("asValue()", () => {
@@ -118,7 +132,7 @@ describe("DizzyProvider", () => {
             requireMock.andCallFake((what) => {
                 return "Module: " + what;
             });
-            provider = new DizzyProvider(val, containerMock);
+            provider = new DizzyProvider("moduleName", val, containerMock);
         }
 
         it("uses require()", () => {
