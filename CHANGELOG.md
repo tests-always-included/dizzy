@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2.0.4 - 2016-05-31
+------------------
+
+* Found and fixed a problem where an arrow function returned an object that utilized the syntax of a class function.  Mostly changed the order of the parsers, but also added a test to ensure it is fixed in the future as well.
+
+
 2.0.3 - 2016-05-27
 ------------------
 
