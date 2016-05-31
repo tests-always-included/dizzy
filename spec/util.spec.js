@@ -126,6 +126,11 @@ describe("util", () => {
                     "config"
                 ]);
             });
+            it("parses a rewrapped function that is used for coverage", () => {
+                expect(util.determineArgs(mockFunctionString("(a)=>{return{f(b){}}}"))).toEqual([
+                    "a"
+                ]);
+            });
         });
     });
 });
