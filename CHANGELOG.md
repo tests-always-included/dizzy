@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2.0.5 - 2016-07-05
+------------------
+
+* Improved the errors that are returned from modules if there is a problem requiring a file.  Previously it would say something like "SyntaxError: missing ) after argument list" and now that error message is prefixed with "Error requiring FILENAME: ".
+
+
 2.0.4 - 2016-05-31
 ------------------
 
