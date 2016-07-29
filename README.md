@@ -159,6 +159,17 @@ Returns an instance of `DizzyProvider`, which allows you define how the value is
 For additional information, look at the `DizzyProvider` section.
 
 
+### `dizzy.resolve(key)`
+
+Returns the resolved value from the dependency injection container.
+
+    dizzy.register("logger", function (message) {
+       console.log(message);
+    });
+    var logger = dizzy.resolve("logger")
+    logger("something");  // Calls console.log("something");
+
+
 `DizzyProvider`
 ---------------
 
