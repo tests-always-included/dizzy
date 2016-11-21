@@ -47,4 +47,10 @@ describe("BulkProvider", () => {
         bulkProvider.asFactory("one", 2, true);
         expect(spy.asFactory).toHaveBeenCalledWith("one", 2, true);
     });
+    it("allows chaining", () => {
+        var result;
+
+        result = bulkProvider.cached();
+        expect(result).toBe(bulkProvider);
+    });
 });
