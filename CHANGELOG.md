@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2.1.1 - 2016-11-21
+------------------
+
+* Fixed the broken chaining interface of the bulk provider.
+
+
 2.1.0 - 2016-11-21
 ------------------
 
