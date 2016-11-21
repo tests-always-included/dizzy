@@ -62,7 +62,7 @@ Next, you write some code to create the container.  You can add a few things to 
     // factory.
     dizzy.resolve("app");
 
-Once you start using this container to inject dependencies, you'll probably want to inject all sorts of things at once.  For instance, you'll inject several Node.JS modules, so there's a technique you can use to make it easier.
+Once you start using this container to inject dependencies, you'll probably want to inject all sorts of things at once.  For instance, you'll inject several Node.js modules, so there's a technique you can use to make it easier.
 
     // Inject some common modules.  For instance, the "aws-sdk" library
     // will be registered in Dizzy as awsSdk.  This is done because variables
