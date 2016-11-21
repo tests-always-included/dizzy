@@ -159,6 +159,43 @@ describe("Dizzy", () => {
             });
         });
     });
+    describe("registerBulk()", () => {
+        it("returns a BulkProvider for an empty object", () => {
+            var provider;
+
+            provider = dizzy.registerBulk({});
+            expect(provider.addProvider).toBeDefined();
+            expect(provider.providerSet.length).toBe(0);
+        });
+        it("returns a BulkProvider for an object", () => {
+            var provider;
+
+            provider = dizzy.registerBulk({
+                "test": true,
+                "works": "probably",
+                "yay": ":-)"
+            });
+            expect(provider.addProvider).toBeDefined();
+            expect(provider.providerSet.length).toBe(3);
+        });
+        it("returns a BulkProvider for an empty map", () => {
+            var provider;
+
+            provider = dizzy.registerBulk(new Map());
+            expect(provider.addProvider).toBeDefined();
+            expect(provider.providerSet.length).toBe(0);
+        });
+        it("returns a BulkProvider for a map", () => {
+            var map, provider;
+
+            map = new Map();
+            map.set("a", "A");
+            map.set("1", "one");
+            provider = dizzy.registerBulk(map);
+            expect(provider.addProvider).toBeDefined();
+            expect(provider.providerSet.length).toBe(2);
+        });
+    });
     describe("resolve()", () => {
         // Only testing failure paths here because normal usage
         // is tested through other methods already.

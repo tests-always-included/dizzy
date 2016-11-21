@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2.1.0 - 2016-11-21
+------------------
+
+* Added `registerBulk` in the hopes of reducing the amount of code that is necessary when using the container.
+
+
 2.0.5 - 2016-07-05
 ------------------
 

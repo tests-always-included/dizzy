@@ -62,6 +62,27 @@ Next, you write some code to create the container.  You can add a few things to 
     // factory.
     dizzy.resolve("app");
 
+Once you start using this container to inject dependencies, you'll probably want to inject all sorts of things at once.  For instance, you'll inject several Node.JS modules, so there's a technique you can use to make it easier.
+
+    // Inject some common modules.  For instance, the "aws-sdk" library
+    // will be registered in Dizzy as awsSdk.  This is done because variables
+    // can't have embedded hyphens.
+    //
+    // All of these will be registered as a module.
+    dizzy.registerBulk({
+        awsSdk: "aws-sdk",
+        bluebird: "bluebird",
+        twofa: "2fa"
+    }).fromModule();
+
+    // If you have library files in your own codebase and they all use
+    // a factory pattern, register them in bulk as well.
+    dizzy.registerBulk({
+        compression: "./compression",
+        textFormatter: "./text-formatter",
+        WebServer: "./class/web-server"
+    }).fromModule(__dirname).asFactory().cached();
+
 
 Methods
 -------
@@ -157,6 +178,25 @@ Returns an instance of `DizzyProvider`, which allows you define how the value is
     }).asFactory().cached();
 
 For additional information, look at the `DizzyProvider` section.
+
+
+### `dizzy.registerBulk(mapping)`
+
+This shorthand is the same as multiple identical calls to `dizzy.register()`.  It's purpose is to configure many values at once in the same way.
+
+    // Old way
+    dizzy.register("crypto", "crypto").asModule();
+    dizzy.register("fs", "fs").asModule();
+    dizzy.register("zlib", "zlib").asModule();
+
+    // New way using registerBulk().
+    dizzy.registerBulk({
+        crypto: "crypto",
+        fs: "fs",
+        zlib: "zlib"
+    }).asModule();
+
+The key being registered is still on the left and the value is on the right.
 
 
 ### `dizzy.resolve(key)`
