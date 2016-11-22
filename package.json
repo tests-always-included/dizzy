@@ -5,7 +5,6 @@
     "main": "lib/index.js",
     "scripts": {
         "test": "jasmine-node lib spec",
-        "umd": "grep -rl '// fid-umd' lib/ --include \\*.js | xargs fid-umd",
         "watch": "npm run test -- --autotest"
     },
     "repository": {
@@ -27,7 +26,6 @@
     },
     "homepage": "https://github.com/tests-always-included/dizzy#readme",
     "devDependencies": {
-        "fid-umd": "^2.0.4",
         "jasmine-node": "^1.14.5"
     }
 }
