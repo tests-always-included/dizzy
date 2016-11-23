@@ -14,6 +14,7 @@ This system was based around the following goals:
 3. Follow industry standard naming conventions and community embraced patterns.
 4. Do not hijack `require()`, even though it is tempting.
 5. ECMAScript 6.  This impacts both what can be accepted and how the code runs.
+6. Allow asynchronous operations.  That's a lofty goal but could be vital for your software.
 
 
 Examples
@@ -83,6 +84,46 @@ Once you start using this container to inject dependencies, you'll probably want
         WebServer: "./class/web-server"
     }).fromModule(__dirname).asFactory().cached();
 
+Did you want to register some things as `Promise` objects and have them get resolved before you use them?  Try the `*Async` functions!  If you do not use the asynchronous functions then promise objects may be injected into your factories and may be returned at times.  To make sure everything works as expected, switch over entirely and stop using the synchronous functions.
+
+    // This loads your configuration.  Just an example here.
+    // anotherValue will NOT be a promise when resolved asynchronously
+    function loadConfigAsync(anotherValue) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({
+                    message: "This is your configuration",
+                    value: anotherValue
+                });
+            }, 500);
+        });
+    }
+
+    anotherPromise = new Promise((resolve) => {
+        resolve("this gets resolved before calling the function");
+    });
+
+    // Add some modules that return promises
+    dizzy.register("config", loadConfigAsync).asFactory().cached();
+    dizzy.register("anotherValue", anotherPromise);
+
+    // Load the configuration and get a promise back
+    configLoadedPromise = dizzy.resolveAsync("config");
+    configLoadedPromise.then((result) => {
+        console.log(result);
+        // {
+        //     message: "This is your configuration"
+        //     value: "this gets resolved before calling the function"
+        // }
+    });
+
+    // Even though it is cached, this may return a different promise.
+    secondConfigLoadedPromise = dizzy.resolveAsync("config");
+    console.log(configLoadedPromise === secondConfigLoadedPromise);
+    // Could be false.  It's the value that is guaranteed to be cached.
+    // It's also guaranteed to always be a promise, even though it was
+    // already resolved.
+
 
 Methods
 -------
@@ -113,6 +154,25 @@ Returns the value returned from the function.
     }, null);
 
 
+### `dizzy.callAsync(callFunction, [argsArray], [contextObj])`
+
+This is identical to `dizzy.call()` except in two ways.  First, all injected values that are promises will be resolved before the function is called.  Second, this always returns the `callFunction`'s result wrapped in a promise.  If the function itself returns a promise, then normal promise resolution occurs.
+
+    dizzy.register("one", new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(1);
+        }, 1000);
+    }));
+
+    dizzy.callAsync((one) => {
+        return one;
+    }).then((result) => {
+        console.log(result); // 1
+    });
+
+Arguments and the context are both handled exactly like `dizzy.call()`.
+
+
 ### `dizzy.instance(classFunction, [argsArray])`
 
 Creates an instance of `classFunction`.  When `argsArray` is passed, it will inject into the constructor all of the values specified.  If `argsArray` is omitted, Dizzy will look up the parameters that the constructor needs.
@@ -125,12 +185,34 @@ Returns the newly created instance.
         }
     }
 
+    dizzy.register("val", new P
     dizzy.register("val", "ONE");
     dizzy.register("two", "TWO");
     dizzy.instance(Testing);  // Injects "val" automatically, writes "ONE".
     dizzy.instance(Testing, [
         "two"
     ]);  // Injects "two" using argsArray, writes "TWO" to console.
+
+
+### `dizzy.instanceAsync(classFunction, [argsArray])`
+
+Asynchronous version of `dizzy.instance()` with two differences.  First, all injected values that are promises shall be resolved before the class is instantiated.  Second, the return value of this function is always wrapped in a promise.
+
+    class Testing {
+        constructor(val) {
+            console.log(val);
+            // "value goes here"
+        }
+    }
+
+    dizzy.register("val", new Promise((resolve) => {
+        setTimeout(() => {
+            resolve("value goes here");
+        });
+    }));
+    dizzy.instanceAsync(Testing).then((instance) => {
+        console.log("instance was created");
+    });
 
 
 ### `dizzy.isRegistered(key)`
@@ -210,6 +292,17 @@ Returns the resolved value from the dependency injection container.
     logger("something");  // Calls console.log("something");
 
 
+### `dizzy.resolveAsync(key)`
+
+Asynchronous version of `dizzy.resolve()`.  Always returns the value wrapped in a promise.  If the value was a factory or an instance, this uses the asynchronous versions of those methods.
+
+    dizzy.register("test", "value");
+    dizzy.resolveAsync("test").then((result) => {
+        console.log(result);
+        // value
+    });
+
+
 `DizzyProvider`
 ---------------
 
@@ -226,7 +319,7 @@ By default, the provider is configured thus:
 * `.fromValue()` - The value registered is not looked up elsewhere.
 * `.asValue()` - The value retrieved is unaltered.
 * `.cached(false)` - The retrieved value is not cached.
-* `.withContext(null)` - The context for factory functions is assigned to `null` as a reasonable defaults.
+* `.withContext(null)` - The context for factory functions is assigned to `null` as a reasonable default.
 
 
 ### `.asFactory([args...])`
@@ -439,8 +532,6 @@ Currently there are no events, though they are under consideration.  Proposed ev
 * `debug` - Debugging messages, useful for diagnostics and understanding how the dependencies are resolved.
 * `warn` - Indications that you may be doing something wrong.
 * `destroy` - Trigger cleanup behavior, such as removing timeouts and closing database connections.
-
-The methods on the container should allow one to register a hash or a map of key/value pairs.
 
 Having a cache may make things faster.  Clearing the cache or clearing all registered values may make testing easier.
 
