@@ -67,6 +67,7 @@ describe("DizzyProvider", () => {
             });
             it("rejects the promise when resolved value is not a function", () => {
                 provider = new DizzyProvider("testKey", "a string", containerMock);
+
                 return provider.asFactory().provideAsync().then(jasmine.fail, (err) => {
                     expect(err).toEqual(jasmine.any(Error));
                     expect(containerMock.callAsync).not.toHaveBeenCalled();
@@ -116,6 +117,7 @@ describe("DizzyProvider", () => {
             });
             it("rejects when the resolved value is not a function", () => {
                 provider = new DizzyProvider("testKey", "a string", containerMock);
+
                 return provider.asInstance().provideAsync().then(jasmine.fail, (err) => {
                     expect(err).toEqual(jasmine.any(Error));
                     expect(containerMock.instanceAsync).not.toHaveBeenCalled();
@@ -150,6 +152,13 @@ describe("DizzyProvider", () => {
     });
     describe("cached()", () => {
         describe("sync", () => {
+            /**
+             * Injects a value, changes it, then injects it again.
+             *
+             * Determines if the results do/don't match.
+             *
+             * @param {Boolean} matches If true, results should match.
+             */
             function doTest(matches) {
                 var first, second;
 
@@ -186,6 +195,14 @@ describe("DizzyProvider", () => {
             });
         });
         describe("async", () => {
+            /**
+             * Injects a value, changes it, then injects it again.
+             *
+             * Determines if the results do/don't match.
+             *
+             * @param {Boolean} matches If true, results should match.
+             * @return {Promise.<*>}
+             */
             function doTest(matches) {
                 containerMock.callAsync.andCallFake((callback) => {
                     return callback();
@@ -265,11 +282,17 @@ describe("DizzyProvider", () => {
     });
     describe("fromModule()", () => {
         describe("sync", () => {
+            /**
+             * Fake a required module and rewire the provider to use
+             * that fake module.
+             *
+             * @param {string} val Name of module that is rewired
+             */
             function setup(val) {
                 // Need to make our own provider here in order to get
                 // a Node module name
                 requireMock.andCallFake((what) => {
-                    return "Module: " + what;
+                    return `Module: ${what}`;
                 });
                 provider = new DizzyProvider("moduleName", val, containerMock);
             }
@@ -282,7 +305,7 @@ describe("DizzyProvider", () => {
             it("uses process.cwd() for relative modules", () => {
                 setup("./config.js");
                 provider.fromModule();
-                expect(provider.provide()).toBe("Module: " + process.cwd() + "/config.js");
+                expect(provider.provide()).toBe(`Module: ${process.cwd()}/config.js`);
             });
             it("uses a specified folder for relative modules", () => {
                 setup("./config.js");
@@ -299,11 +322,17 @@ describe("DizzyProvider", () => {
             });
         });
         describe("async", () => {
+            /**
+             * Rewire a module to be faked and recreate the provider so the
+             * desired module can be fake loaded.
+             *
+             * @param {string} val Name of module to fake
+             */
             function setup(val) {
                 // Need to make our own provider here in order to get
                 // a Node module name
                 requireMock.andCallFake((what) => {
-                    return "Module: " + what;
+                    return `Module: ${what}`;
                 });
                 provider = new DizzyProvider("moduleName", val, containerMock);
             }
@@ -321,7 +350,7 @@ describe("DizzyProvider", () => {
                 provider.fromModule();
 
                 return provider.provideAsync().then((result) => {
-                    expect(result).toBe("Module: " + process.cwd() + "/config.js");
+                    expect(result).toBe(`Module: ${process.cwd()}/config.js`);
                 });
             });
             it("uses a specified folder for relative modules", () => {

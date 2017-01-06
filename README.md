@@ -202,7 +202,6 @@ Returns the newly created instance.
         }
     }
 
-    dizzy.register("val", new P
     dizzy.register("val", "ONE");
     dizzy.register("two", "TWO");
     dizzy.instance(Testing);  // Injects "val" automatically, writes "ONE".
