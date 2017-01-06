@@ -125,8 +125,19 @@ Did you want to register some things as `Promise` objects and have them get reso
     // already resolved.
 
 
-Methods
--------
+API and Methods
+---------------
+
+The module exports a class.
+
+    var Dizzy;
+
+    Dizzy = require("dizzy");
+
+    // This instance's methods are detailed below.
+    dizzy = new Dizzy();
+
+In addition to exporting the class, `Dizzy.BulkProvider` and `Dizzy.DizzyProvider` supply access to the classes that are used internally, allowing modules to be plugins and add functionality.
 
 
 ### `dizzy.call(callFunction, [argsArray], [contextObj])`
