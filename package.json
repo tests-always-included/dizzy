@@ -1,10 +1,10 @@
 {
     "name": "dizzy",
-    "version": "2.1.1",
+    "version": "2.2.1",
     "description": "JavaScript dependency injection system.",
     "main": "lib/index.js",
     "scripts": {
-        "test": "jasmine-node node_modules/jasmine-test-helpers/lib lib spec",
+        "test": "istanbul cover jasmine-node node_modules/jasmine-test-helpers/lib lib spec && eslint lib spec && codecov",
         "watch": "npm run test -- --autotest"
     },
     "repository": {
@@ -26,7 +26,10 @@
     },
     "homepage": "https://github.com/tests-always-included/dizzy#readme",
     "devDependencies": {
-        "jasmine-node": "^1.14.5",
-        "jasmine-test-helpers": "^1.1.0"
+        "codecov": "~1.0.1",
+        "eslint": "~3.12.2",
+        "istanbul": "~0.4.5",
+        "jasmine-node": "~1.14.5",
+        "jasmine-test-helpers": "~1.1.0"
     }
 }

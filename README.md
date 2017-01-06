@@ -3,6 +3,12 @@ Dizzy - Dependency Injection
 
 Dizzy is a dependency injection container (aka framework or system), allowing developers to loosely couple modules together.  Dependency injection is a type of IoC (Inversion of Control), where you let all other code call you instead of the other way around.  It also allows for significantly easier testing, since the dependencies in your modules could be mocks or other classes that have prescribed output.  For more information about dependency injection in node, I suggest reading [Dependency Injection in Node.js](https://blog.risingstack.com/dependency-injection-in-node-js/).
 
+[![npm version][npm-badge]][npm-link]
+[![Build Status][travis-badge]][travis-link]
+[![Dependencies][dependencies-badge]][dependencies-link]
+[![Dev Dependencies][devdependencies-badge]][devdependencies-link]
+[![codecov.io][codecov-badge]][codecov-link]
+
 
 Premise
 -------
@@ -555,3 +561,16 @@ License
 -------
 
 Dizzy is licensed under a [MIT license](LICENSE.md).
+
+
+[codecov-badge]: https://codecov.io/github/tests-always-included/dizzy/coverage.svg?branch=master
+[codecov-link]: https://codecov.io/github/tests-always-included/dizzy?branch=master
+[dependencies-badge]: https://david-dm.org/tests-always-included/dizzy.png
+[dependencies-link]: https://david-dm.org/tests-always-included/dizzy
+[devdependencies-badge]: https://david-dm.org/tests-always-included/dizzy/dev-status.png
+[devdependencies-link]: https://david-dm.org/tests-always-included/dizzy#info=devDependencies
+[npm-badge]: https://badge.fury.io/js/dizzy.svg
+[npm-link]: https://npmjs.org/package/dizzy
+[travis-badge]: https://secure.travis-ci.org/tests-always-included/dizzy.png
+[travis-link]: http://travis-ci.org/tests-always-included/dizzy
+

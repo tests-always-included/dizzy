@@ -36,6 +36,9 @@ describe("util", () => {
         it("is a function", () => {
             expect(typeof util.determineArgs).toBe("function");
         });
+        it("works when passed a non-callable thing", () => {
+            expect(util.determineArgs(123)).toEqual([]);
+        });
         describe("with actual objects", () => {
             it("parses a normal function with no arguments", () => {
                 expect(util.determineArgs(function f() {

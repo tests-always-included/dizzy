@@ -16,6 +16,7 @@ describe("Dizzy", () => {
         beforeEach(() => {
             dizzy.register("one", 1);
             dizzy.register("two", 2);
+            dizzy.register("promise", Promise.resolve("the promise result"));
         });
         it("resolves arguments", () => {
             var args;
@@ -31,6 +32,15 @@ describe("Dizzy", () => {
                 1,
                 2
             ]);
+        });
+        it("does not wait for promises", () => {
+            var args;
+
+            args = null;
+            dizzy.call((promise) => {
+                args = promise;
+            });
+            expect(args).toEqual(jasmine.any(Promise));
         });
         it("works with argsArray", () => {
             var args;
@@ -66,10 +76,89 @@ describe("Dizzy", () => {
             });
         });
     });
+    describe("callAsync()", () => {
+
+        beforeEach(() => {
+            dizzy.register("one", 1);
+            dizzy.register("two", Promise.resolve(2));
+        });
+        it("resolves arguments, getting values from promises", () => {
+            var args;
+
+            args = null;
+
+            return dizzy.callAsync((one, two) => {
+                args = [
+                    one,
+                    two
+                ];
+            }).then(() => {
+                expect(args).toEqual([
+                    1,
+                    2
+                ]);
+            });
+        });
+        it("does wait for promises", () => {
+            var args, promise;
+
+            promise = new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve("actual value");
+                }, 100);
+            });
+            dizzy.register("delayed", promise);
+            args = null;
+
+            return dizzy.callAsync((delayed) => {
+                args = delayed;
+            }).then(() => {
+                expect(args).toEqual("actual value");
+            });
+        });
+        it("works with argsArray", () => {
+            var args;
+
+            args = null;
+            return dizzy.callAsync((one, two) => {
+                args = [
+                    one,
+                    two
+                ];
+            }, [
+                "two"
+            ]).then(() => {
+                expect(args).toEqual([
+                    2,
+                    undefined
+                ]);
+            });
+        });
+        it("returns the function's result", () => {
+            return dizzy.callAsync(() => {
+                return 15;
+            }).then((result) => {
+                expect(result).toBe(15);
+            });
+        });
+        it("uses the specified context", () => {
+            var context;
+
+            context = {};
+            return dizzy.callAsync(function () {
+                this.worked = true;
+            }, context).then(() => {
+                expect(context).toEqual({
+                    worked: true
+                });
+            });
+        });
+    });
     describe("instance()", () => {
         beforeEach(() => {
             dizzy.register("one", 1);
             dizzy.register("two", 2);
+            dizzy.register("promise", Promise.resolve("the promise result"));
         });
         it("resolves arguments", () => {
             var args;
@@ -88,6 +177,18 @@ describe("Dizzy", () => {
                 1,
                 2
             ]);
+        });
+        it("does not resolve promises", () => {
+            var args;
+
+            args = null;
+            class TestClass {
+                constructor(promise) {
+                    args = promise;
+                }
+            }
+            dizzy.instance(TestClass);
+            expect(args).toEqual(jasmine.any(Promise));
         });
         it("works with argsArray", () => {
             var args;
@@ -112,6 +213,78 @@ describe("Dizzy", () => {
         it("returns the instantiated object", () => {
             class TestClass {}
             expect(dizzy.instance(TestClass)).toEqual(jasmine.any(TestClass));
+        });
+    });
+    describe("instanceAsync()", () => {
+        beforeEach(() => {
+            dizzy.register("one", 1);
+            dizzy.register("two", Promise.resolve(2));
+        });
+        it("resolves arguments", () => {
+            var args;
+
+            args = null;
+            class TestClass {
+                constructor(one, two) {
+                    args = [
+                        one,
+                        two
+                    ];
+                }
+            }
+            return dizzy.instanceAsync(TestClass).then(() => {
+                expect(args).toEqual([
+                    1,
+                    2
+                ]);
+            });
+        });
+        it("waits for promises to resolve", () => {
+            var args, promise;
+
+            promise = new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve("actual value");
+                }, 100);
+            });
+            dizzy.register("delayed", promise);
+            args = null;
+            class TestClass {
+                constructor(delayed) {
+                    args = delayed;
+                }
+            }
+            return dizzy.instanceAsync(TestClass).then(() => {
+                expect(args).toEqual("actual value");
+            });
+        });
+        it("works with argsArray", () => {
+            var args;
+
+            args = null;
+            class TestClass {
+                constructor(one, two) {
+                    args = [
+                        one,
+                        two
+                    ];
+                }
+            }
+            return dizzy.instanceAsync(TestClass, [
+                "two"
+            ]).then(() => {
+                expect(args).toEqual([
+                    2,
+                    undefined
+                ]);
+            });
+        });
+        it("returns the instantiated object", () => {
+            class TestClass {}
+
+            return dizzy.instanceAsync(TestClass).then((result) => {
+                expect(result).toEqual(jasmine.any(TestClass));
+            });
         });
     });
     describe("isRegistered()", () => {
@@ -203,6 +376,15 @@ describe("Dizzy", () => {
             expect(() => {
                 dizzy.resolve("not defined");
             }).toThrow();
+        });
+    });
+    describe("resolveAsync()", () => {
+        // Only testing failure paths here because normal usage
+        // is tested through other methods already.
+        it("rejects when a key is not defined", () => {
+            return dizzy.resolveAsync("not defined").then(jasmine.fail, (err) => {
+                expect(err).toEqual(jasmine.any(Error));
+            });
         });
     });
 });

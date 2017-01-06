@@ -15,11 +15,7 @@ describe("DizzyProvider", () => {
         functionResult = {
             "function result": true
         };
-        functionTest = function (arg) {
-            if (this) {
-                this.arg = arg;
-            }
-
+        functionTest = function () {
             return functionResult;
         };
         requireMock = jasmine.createSpy("requireMock");
@@ -191,16 +187,16 @@ describe("DizzyProvider", () => {
         });
         describe("async", () => {
             function doTest(matches) {
-                containerMock.call.andCallFake((callback) => {
+                containerMock.callAsync.andCallFake((callback) => {
                     return callback();
                 });
                 provider.asFactory();
                 functionResult = "first result";
 
-                return provider.provideAsync((first) => {
+                return provider.provideAsync().then((first) => {
                     functionResult = "second result";
 
-                    return provider.provideAsync((second) => {
+                    return provider.provideAsync().then((second) => {
                         if (matches) {
                             expect(first).toEqual(second);
                         } else {
@@ -211,19 +207,38 @@ describe("DizzyProvider", () => {
             }
 
             it("is disabled by default", () => {
-                doTest(false);
+                return doTest(false);
             });
             it("may be enabled with no args", () => {
                 provider.cached();
-                doTest(true);
+
+                return doTest(true);
             });
             it("may be enabled with truthy value", () => {
                 provider.cached(true);
-                doTest(true);
+
+                return doTest(true);
             });
             it("may be disabled with falsy value", () => {
                 provider.cached().cached(false);
-                doTest(false);
+
+                return doTest(false);
+            });
+            it("throws if trying to resolve async and sync at the same time", () => {
+                var promise;
+
+                provider.cached();
+                containerMock.callAsync.andCallFake((callback) => {
+                    setTimeout(callback, 100);
+                });
+                promise = provider.provideAsync();
+                expect(() => {
+                    provider.provide();
+                }).toThrow();
+
+                return promise.then((asyncResult) => {
+                    expect(provider.provide()).toBe(asyncResult);
+                });
             });
         });
     });
@@ -274,6 +289,14 @@ describe("DizzyProvider", () => {
                 provider.fromModule("/var/lib/modules");
                 expect(provider.provide()).toBe("Module: /var/lib/modules/config.js");
             });
+            it("throws when a module can't be found", () => {
+                setup("fake-module-that-does-not-exist");
+                requireMock.andThrow(new Error("Can not find module"));
+                provider.fromModule();
+                expect(() => {
+                    provider.provide();
+                }).toThrow();
+            });
         });
         describe("async", () => {
             function setup(val) {
@@ -307,6 +330,15 @@ describe("DizzyProvider", () => {
 
                 return provider.provideAsync().then((result) => {
                     expect(result).toBe("Module: /var/lib/modules/config.js");
+                });
+            });
+            it("rejects when a module can't be found", () => {
+                setup("fake-module-that-does-not-exist");
+                requireMock.andThrow(new Error("Can not find module"));
+                provider.fromModule();
+
+                return provider.provideAsync().then(jasmine.fail, (err) => {
+                    expect(err).toEqual(jasmine.any(Error));
                 });
             });
         });
@@ -344,17 +376,22 @@ describe("DizzyProvider", () => {
                 "my context": true
             };
             provider.withContext(localContext);
+            containerMock.call.andReturn("result from calling");
+            containerMock.callAsync.andReturn("result from calling async");
         });
         describe("sync", () => {
+            it("sets null as the default context", () => {
+                provider.withContext().asFactory();
+                expect(provider.provide()).toBe("result from calling");
+                expect(containerMock.call).toHaveBeenCalledWith(functionTest, null, null);
+            });
             it("calls the factory without overridden args", () => {
                 provider.asFactory();
-                containerMock.call.andReturn("result from calling");
                 expect(provider.provide()).toBe("result from calling");
                 expect(containerMock.call).toHaveBeenCalledWith(functionTest, null, localContext);
             });
             it("calls the factory with overridden args", () => {
                 provider.asFactory("test");
-                containerMock.call.andReturn("result from calling");
                 expect(provider.provide()).toBe("result from calling");
                 expect(containerMock.call).toHaveBeenCalledWith(functionTest, [
                     "test"
@@ -362,21 +399,27 @@ describe("DizzyProvider", () => {
             });
         });
         describe("async", () => {
-            it("calls the factory without overridden args", () => {
-                provider.asFactory();
-                containerMock.callAsync.andReturn("result from calling");
+            it("sets null as the default context", () => {
+                provider.withContext().asFactory();
 
                 return provider.provideAsync().then((result) => {
-                    expect(result).toBe("result from calling");
+                    expect(result).toBe("result from calling async");
+                    expect(containerMock.callAsync).toHaveBeenCalledWith(functionTest, null, null);
+                });
+            });
+            it("calls the factory without overridden args", () => {
+                provider.asFactory();
+
+                return provider.provideAsync().then((result) => {
+                    expect(result).toBe("result from calling async");
                     expect(containerMock.callAsync).toHaveBeenCalledWith(functionTest, null, localContext);
                 });
             });
             it("calls the factory with overridden args", () => {
                 provider.asFactory("test");
-                containerMock.callAsync.andReturn("result from calling");
 
                 return provider.provideAsync().then((result) => {
-                    expect(result).toBe("result from calling");
+                    expect(result).toBe("result from calling async");
                     expect(containerMock.callAsync).toHaveBeenCalledWith(functionTest, [
                         "test"
                     ], localContext);
