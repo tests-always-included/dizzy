@@ -1,7 +1,14 @@
+# OS-specific
 .DS_Store
 ._*
 .Trash*
 $*
+
+# Keys and Certs
+*.pem
+*.crt
+*.csr
+*.key
 
 # Backup files
 *.sw[g-p]
@@ -20,5 +27,7 @@ $*
 .metadata/
 nbproject/
 
-# Generated
+# Generated things, may not be applicable to your project
+/coverage/
 /node_modules/
+npm-debug.log

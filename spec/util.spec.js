@@ -1,29 +1,75 @@
 "use strict";
 
-class es6Class {
+/**
+ * Sample ES6 class, with the constructor not listed first and other
+ * tricky functions.
+ */
+class Es6Class {
+    /**
+     * @param {*} wrong
+     * @return {*}
+     */
     deconstructor(wrong) {
         return wrong;
     }
+
+
+    /**
+     * @param {*} right
+     * @param {*} correct
+     * @return {*}
+     */
     constructor(right, correct) {
         return right + correct;
     }
+
+
+    /**
+     * @param {*} incorrect
+     * @return {*}
+     */
     reconstructor(incorrect) {
         return incorrect;
     }
+
+
+    /**
+     * @param {*} wrong
+     * @param {*} bad
+     * @return {*}
+     */
     subconstructor(wrong, bad) {
         return wrong + bad;
     }
 }
 
+
+/**
+ * Take a string and make a function return that string when .toString()
+ * is called on the function.
+ *
+ * @param {string} expectedString
+ * @return {Function} A mocked up function
+ */
 function mockFunctionString(expectedString) {
-    var result;
+    var fakeFunction, originalToString;
 
-    result = new Function();
-    result.toString = () => {
-        return expectedString;
-    };
+    fakeFunction = () => {};
+    originalToString = Function.prototype.toString;
+    spyOn(Function.prototype, "toString").andCallFake(function () {
+        var args;
 
-    return result;
+        /* eslint no-invalid-this:off */
+        if (this === fakeFunction) {
+            return expectedString;
+        }
+
+        args = [].prototype.slice.call(arguments);
+
+        return originalToString.apply(this, args);
+    });
+
+    return fakeFunction;
 }
 
 describe("util", () => {
@@ -35,6 +81,9 @@ describe("util", () => {
     describe("determineArgs()", () => {
         it("is a function", () => {
             expect(typeof util.determineArgs).toBe("function");
+        });
+        it("works when passed a non-callable thing", () => {
+            expect(util.determineArgs(123)).toEqual([]);
         });
         describe("with actual objects", () => {
             it("parses a normal function with no arguments", () => {
@@ -59,8 +108,15 @@ describe("util", () => {
                 ]);
             });
             it("works with old classes", () => {
+                /**
+                 * Old class
+                 *
+                 * @param {*} left
+                 * @param {*} right
+                 * @return {*}
+                 */
                 function oldClass(left, right) {
-                    return 3 * right == left;
+                    return 3 * right === left;
                 }
 
                 expect(util.determineArgs(oldClass)).toEqual([
@@ -69,7 +125,7 @@ describe("util", () => {
                 ]);
             });
             it("works with new classes", () => {
-                expect(util.determineArgs(es6Class)).toEqual([
+                expect(util.determineArgs(Es6Class)).toEqual([
                     "right",
                     "correct"
                 ]);
@@ -77,7 +133,7 @@ describe("util", () => {
             it("works with new class methods that have a single argument", () => {
                 var x;
 
-                x = new es6Class();
+                x = new Es6Class();
                 expect(util.determineArgs(x.reconstructor)).toEqual([
                     "incorrect"
                 ]);
@@ -85,7 +141,7 @@ describe("util", () => {
             it("works with new class methods that have multiple arguments", () => {
                 var x;
 
-                x = new es6Class();
+                x = new Es6Class();
                 expect(util.determineArgs(x.subconstructor)).toEqual([
                     "wrong",
                     "bad"
