@@ -562,14 +562,13 @@ License
 Dizzy is licensed under a [MIT license](LICENSE.md).
 
 
-[codecov-badge]: https://codecov.io/github/tests-always-included/dizzy/coverage.svg?branch=master
+[codecov-badge]: https://img.shields.io/codecov/c/github/tests-always-included/dizzy/master.svg
 [codecov-link]: https://codecov.io/github/tests-always-included/dizzy?branch=master
-[dependencies-badge]: https://david-dm.org/tests-always-included/dizzy.png
+[dependencies-badge]: https://img.shields.io/david/tests-always-included/dizzy.svg
 [dependencies-link]: https://david-dm.org/tests-always-included/dizzy
-[devdependencies-badge]: https://david-dm.org/tests-always-included/dizzy/dev-status.png
+[devdependencies-badge]: https://img.shields.io/david/dev/tests-always-included/dizzy.svg
 [devdependencies-link]: https://david-dm.org/tests-always-included/dizzy#info=devDependencies
-[npm-badge]: https://badge.fury.io/js/dizzy.svg
+[npm-badge]: https://img.shields.io/npm/v/dizzy.svg
 [npm-link]: https://npmjs.org/package/dizzy
-[travis-badge]: https://secure.travis-ci.org/tests-always-included/dizzy.png
+[travis-badge]: https://img.shields.io/travis/tests-always-included/dizzy/master.svg
 [travis-link]: http://travis-ci.org/tests-always-included/dizzy
-
