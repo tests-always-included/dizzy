@@ -1,6 +1,22 @@
 CHANGELOG
 =========
 
+
+2.2.2 - 2016-02-22
+------------------
+
+* Corrected examples in documentation.
+* Updated dependencies.
+* No code changes.
+
+
+2.2.1 - 2016-01-11
+------------------
+
+* Updated dependencies.
+* No code changes.
+
+
 2.1.1 - 2016-11-21
 ------------------
 
