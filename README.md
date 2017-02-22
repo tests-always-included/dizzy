@@ -283,16 +283,16 @@ For additional information, look at the `DizzyProvider` section.
 This shorthand is the same as multiple identical calls to `dizzy.register()`.  It's purpose is to configure many values at once in the same way.
 
     // Old way
-    dizzy.register("crypto", "crypto").asModule();
-    dizzy.register("fs", "fs").asModule();
-    dizzy.register("zlib", "zlib").asModule();
+    dizzy.register("crypto", "crypto").fromModule();
+    dizzy.register("fs", "fs").fromModule();
+    dizzy.register("zlib", "zlib").fromModule();
 
     // New way using registerBulk().
     dizzy.registerBulk({
         crypto: "crypto",
         fs: "fs",
         zlib: "zlib"
-    }).asModule();
+    }).fromModule();
 
 The key being registered is still on the left and the value is on the right.
 
