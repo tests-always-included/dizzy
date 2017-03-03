@@ -28,7 +28,7 @@ describe("DizzyProvider", () => {
     describe("asFactory()", () => {
         describe("sync", () => {
             beforeEach(() => {
-                containerMock.call.andReturn("result from calling");
+                containerMock.call.and.returnValue("result from calling");
             });
             it("calls the function as a factory", () => {
                 expect(provider.asFactory().provide()).toBe("result from calling");
@@ -49,7 +49,7 @@ describe("DizzyProvider", () => {
         });
         describe("async", () => {
             beforeEach(() => {
-                containerMock.callAsync.andReturn(Promise.resolve("result from calling async"));
+                containerMock.callAsync.and.returnValue(Promise.resolve("result from calling async"));
             });
             it("calls the function as a factory", () => {
                 return provider.asFactory().provideAsync().then((result) => {
@@ -78,7 +78,7 @@ describe("DizzyProvider", () => {
     describe("asInstance()", () => {
         describe("sync", () => {
             beforeEach(() => {
-                containerMock.instance.andReturn("result from instance");
+                containerMock.instance.and.returnValue("result from instance");
             });
             it("creates an instance", () => {
                 expect(provider.asInstance().provide()).toBe("result from instance");
@@ -99,7 +99,7 @@ describe("DizzyProvider", () => {
         });
         describe("async", () => {
             beforeEach(() => {
-                containerMock.instanceAsync.andReturn(Promise.resolve("result from instance async"));
+                containerMock.instanceAsync.and.returnValue(Promise.resolve("result from instance async"));
             });
             it("creates an instance", () => {
                 return provider.asInstance().provideAsync().then((result) => {
@@ -162,7 +162,7 @@ describe("DizzyProvider", () => {
             function doTest(matches) {
                 var first, second;
 
-                containerMock.call.andCallFake((callback) => {
+                containerMock.call.and.callFake((callback) => {
                     return callback();
                 });
                 provider.asFactory();
@@ -204,7 +204,7 @@ describe("DizzyProvider", () => {
              * @return {Promise.<*>}
              */
             function doTest(matches) {
-                containerMock.callAsync.andCallFake((callback) => {
+                containerMock.callAsync.and.callFake((callback) => {
                     return callback();
                 });
                 provider.asFactory();
@@ -245,7 +245,7 @@ describe("DizzyProvider", () => {
                 var promise;
 
                 provider.cached();
-                containerMock.callAsync.andCallFake((callback) => {
+                containerMock.callAsync.and.callFake((callback) => {
                     setTimeout(callback, 100);
                 });
                 promise = provider.provideAsync();
@@ -262,7 +262,7 @@ describe("DizzyProvider", () => {
     describe("fromContainer()", () => {
         describe("sync", () => {
             it("looks up the value in the container", () => {
-                containerMock.resolve.andReturn("resolved");
+                containerMock.resolve.and.returnValue("resolved");
                 provider.fromContainer();
                 expect(provider.provide()).toBe("resolved");
                 expect(containerMock.resolve).toHaveBeenCalledWith(functionTest);
@@ -270,7 +270,7 @@ describe("DizzyProvider", () => {
         });
         describe("async", () => {
             it("looks up the value in the container", () => {
-                containerMock.resolveAsync.andReturn(Promise.resolve("resolved"));
+                containerMock.resolveAsync.and.returnValue(Promise.resolve("resolved"));
                 provider.fromContainer();
 
                 return provider.provideAsync().then((result) => {
@@ -291,7 +291,7 @@ describe("DizzyProvider", () => {
             function setup(val) {
                 // Need to make our own provider here in order to get
                 // a Node module name
-                requireMock.andCallFake((what) => {
+                requireMock.and.callFake((what) => {
                     return `Module: ${what}`;
                 });
                 provider = new DizzyProvider("moduleName", val, containerMock);
@@ -314,7 +314,7 @@ describe("DizzyProvider", () => {
             });
             it("throws when a module can't be found", () => {
                 setup("fake-module-that-does-not-exist");
-                requireMock.andThrow(new Error("Can not find module"));
+                requireMock.and.throwError(new Error("Can not find module"));
                 provider.fromModule();
                 expect(() => {
                     provider.provide();
@@ -331,7 +331,7 @@ describe("DizzyProvider", () => {
             function setup(val) {
                 // Need to make our own provider here in order to get
                 // a Node module name
-                requireMock.andCallFake((what) => {
+                requireMock.and.callFake((what) => {
                     return `Module: ${what}`;
                 });
                 provider = new DizzyProvider("moduleName", val, containerMock);
@@ -363,7 +363,7 @@ describe("DizzyProvider", () => {
             });
             it("rejects when a module can't be found", () => {
                 setup("fake-module-that-does-not-exist");
-                requireMock.andThrow(new Error("Can not find module"));
+                requireMock.and.throwError(new Error("Can not find module"));
                 provider.fromModule();
 
                 return provider.provideAsync().then(jasmine.fail, (err) => {
@@ -405,8 +405,8 @@ describe("DizzyProvider", () => {
                 "my context": true
             };
             provider.withContext(localContext);
-            containerMock.call.andReturn("result from calling");
-            containerMock.callAsync.andReturn("result from calling async");
+            containerMock.call.and.returnValue("result from calling");
+            containerMock.callAsync.and.returnValue("result from calling async");
         });
         describe("sync", () => {
             it("sets null as the default context", () => {

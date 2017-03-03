@@ -56,7 +56,7 @@ function mockFunctionString(expectedString) {
 
     fakeFunction = () => {};
     originalToString = Function.prototype.toString;
-    spyOn(Function.prototype, "toString").andCallFake(function () {
+    spyOn(Function.prototype, "toString").and.callFake(function () {
         var args;
 
         /* eslint no-invalid-this:off */
