@@ -2,6 +2,12 @@ CHANGELOG
 =========
 
 
+2.2.3 - 2016-03-31
+------------------
+
+* Bugfix when providing values to async called functions.
+
+
 2.2.2 - 2016-02-22
 ------------------
 
