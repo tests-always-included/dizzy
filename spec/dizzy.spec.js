@@ -101,6 +101,19 @@ describe("Dizzy", () => {
                 ]);
             });
         });
+        it("resolves promises recursively", () => {
+            dizzy.register("three", (two) => {
+                return {
+                    two
+                };
+            }).asFactory().cached();
+
+            return dizzy.callAsync((three) => {
+                return three;
+            }).then((three) => {
+                expect(three.two).toBe(2);
+            });
+        });
         it("does wait for promises", () => {
             var args, promise;
 
