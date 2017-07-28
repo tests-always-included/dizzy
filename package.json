@@ -29,7 +29,7 @@
         "codecov": "~2.2.0",
         "eslint": "~4.3.0",
         "istanbul": "~0.4.5",
-        "jasmine": "~2.5.2",
+        "jasmine": "~2.7.0",
         "jasmine-test-helpers": "~1.2.0",
         "nodemon": "~1.11.0"
     }
