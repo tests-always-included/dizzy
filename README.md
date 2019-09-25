@@ -130,6 +130,45 @@ Did you want to register some things as `Promise` objects and have them get reso
     // It's also guaranteed to always be a promise, even though it was
     // already resolved.
 
+Do you prefer Typescript?
+
+    // container.ts
+    import { default as Dizzy } from 'dizzy';
+    import { configLoaderFactory } from './config-loader';
+    import { myServiceFactory } from './my-service';
+
+    const container = new Dizzy();
+    container.registerBulk({
+        configLoader: configLoaderFactory,
+        myService: myServiceFactory
+    }).asFactory().cached();
+
+    export type configLoader = ReturnType<typeof configLoaderFactory>
+    export type myServiceFactory = ReturnType<typeof myServiceFactory>
+
+    container.resolve('myService').begin();
+
+
+    // config-loader.ts
+    export function configLoaderFactory() {
+        // No dependencies and just provides some simple config
+        return {
+            ready: true
+        };
+    }
+
+
+    // my-service.ts
+    import { configLoader } from './container';
+
+    export function myServiceFactory(configLoader: configLoader) {
+        return {
+            begin() {
+                console.log('Ready?', configLoader.ready);
+            }
+        };
+    }
+
 
 API and Methods
 ---------------
