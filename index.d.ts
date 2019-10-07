@@ -3,11 +3,11 @@ export type FnWithReturnPromise<T> = (...args: any) => (T | Promise<T>);
 export class DizzyProvider {
     constructor(key: any, value: any, container: Dizzy);
     asFactory(): this;
-    asFactory(...args): this;
+    asFactory(...args: any[]): this;
     asFn<T>(val: FnWithReturn<T>): T
     asFnAsync<T>(val: Promise<FnWithReturnPromise<T>>): Promise<T>;
     asInstance(): this;
-    asInstance(...args): this;
+    asInstance(...args: any[]): this;
     asValue(): this;
     cached(newSetting?: boolean): this;
     fromContainer(): this;
@@ -26,9 +26,9 @@ export class DizzyProvider {
 export class BulkProvider {
     addProvider(provider: DizzyProvider): void;
     asFactory(): this;
-    asFactory(...args): this;
+    asFactory(...args: any[]): this;
     asInstance(): this;
-    asInstance(...args): this;
+    asInstance(...args: any[]): this;
     asValue(): this;
     cached(newSetting?: boolean): this;
     chainMethod(methodName: string): (...args: any) => this;
