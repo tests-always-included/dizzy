@@ -8,14 +8,7 @@ extends:
     - eslint:recommended
 rules:
     accessor-pairs: error
-    array-bracket-spacing:
-        - error
-        - never
     array-callback-return: error
-    arrow-body-style:
-        - error
-        - always
-    arrow-parens: error
     arrow-spacing: error
     block-spacing:
         - error
@@ -40,9 +33,6 @@ rules:
     global-require: off
     guard-for-in: error
     indent: error
-    init-declarations:
-        - error
-        - never
     jsx-quotes: error
     key-spacing: error
     keyword-spacing: error
@@ -56,8 +46,6 @@ rules:
     max-statements-per-line: error
     new-cap: error
     new-parens: error
-    newline-after-var: error
-    newline-before-return: error
     no-alert: error
     no-array-constructor: error
     no-bitwise: error
@@ -144,7 +132,6 @@ rules:
     no-trailing-spaces: error
     no-undef: error
     no-undef-init: error
-    no-undefined: error
     no-underscore-dangle: error
     no-unexpected-multiline: error
     no-unmodified-loop-condition: error
@@ -166,8 +153,6 @@ rules:
     no-with: error
     object-curly-spacing: error
     object-property-newline: error
-    object-shorthand: error
-    one-var: error
     operator-assignment: error
     operator-linebreak:
         - error
@@ -180,33 +165,21 @@ rules:
         -
             allowNamedFunctions: true
     prefer-const: error
-    prefer-template: error
     quote-props:
         - error
         - as-needed
-    quotes: error
-    radix: error
-    require-jsdoc:
+    quotes:
         - error
-        -
-            require:
-                FunctionDeclaration: true
-                MethodDefinition: true
-                ClassDeclaration: true
+        - single
+    radix: error
     require-yield: error
     semi: error
     semi-spacing: error
-    sort-imports: error
     sort-vars:
         - error
         -
             ignoreCase: true
     space-before-blocks: error
-    space-before-function-paren:
-        - error
-        -
-            anonymous: always
-            named: never
     space-in-parens: error
     space-infix-ops:
         - error

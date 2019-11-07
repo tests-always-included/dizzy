@@ -4,8 +4,8 @@
     "description": "JavaScript dependency injection system.",
     "main": "lib/index.js",
     "scripts": {
-        "test": "istanbul cover jasmine",
-        "watch": "nodemon --exec jasmine"
+        "test": "ava -v",
+        "watch": "npx ava -w"
     },
     "repository": {
         "type": "git",
@@ -26,11 +26,6 @@
     },
     "homepage": "https://github.com/tests-always-included/dizzy#readme",
     "devDependencies": {
-        "codecov": "~3.6.1",
-        "eslint": "~6.4.0",
-        "istanbul": "~0.4.5",
-        "jasmine": "~3.5.0",
-        "jasmine-test-helpers": "~1.2.3",
-        "nodemon": "~1.19.2"
+        "ava": "^2.4.0"
     }
 }
