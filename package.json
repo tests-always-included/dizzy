@@ -1,6 +1,6 @@
 {
     "name": "dizzy",
-    "version": "2.2.5",
+    "version": "2.3.0",
     "description": "JavaScript dependency injection system.",
     "main": "lib/index.js",
     "scripts": {
