@@ -1,9 +1,10 @@
 {
     "name": "dizzy",
-    "version": "2.4.0",
+    "version": "2.5.0",
     "description": "JavaScript dependency injection system.",
     "main": "lib/index.js",
     "scripts": {
+        "reinstall": "rm -rf package-lock.json node_modules && npm install",
         "test": "ava -v",
         "watch": "npx ava -w"
     },
@@ -26,6 +27,6 @@
     },
     "homepage": "https://github.com/tests-always-included/dizzy#readme",
     "devDependencies": {
-        "ava": "^6.4.1"
+        "ava": "^7.0.0"
     }
 }
